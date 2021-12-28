@@ -1,19 +1,12 @@
 # YouTube-to-Podcast
 Convert YouTube videos into a Podcast feed with audio files
 
-This project fetches videos from YouTube using the YouTube API and youtube-dl. Then, it generates a podcast XML feed file
-and upload this feed file and audio files to AWS S3 or other compatible service (like Digital Ocean Spaces).
+This project fetches videos from YouTube using the YouTube API and ytdl-dl. Then, it generates a podcast XML feed file. The created files can be uploaded/synced to any public file service or web server.
 
 ## Setup
 ### Install dependencies
 
 Run: `npm install`
-
-### Compile
-
-Run: `gulp`
-
-You will need gulp to be installed (`sudo npm install -g gulp`)
 
 ### Setup configuration file
 

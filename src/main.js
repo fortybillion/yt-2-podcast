@@ -1,106 +1,94 @@
-// Runtime
-import 'babel-polyfill';
-import './util/log';
-
 // Dependencies
-import winston from 'winston';
+import winston from 'winston'
+
+// Runtime
+import './util/log.js'
+import Filesystem from './util/filesystem.js'
+import Podcast from './util/podcast.js'
+import YouTube from './util/youtube.js'
 
 // Local
-import config from './util/config';
-import Aws from './util/aws';
-import Podcast from './util/podcast';
-import YouTube from './util/youtube';
+import config from './util/config.js'
 
-(async () =>
-{
-	try
-	{
-		// Init
-		winston.info ('Initializing');
-		const youtube = new YouTube ();
-		const podcast = new Podcast ();
-		const aws = new Aws ();
+(async () => {
+  try {
+    // Init
+    winston.info('Initializing')
+    const youtube = new YouTube()
+    const podcast = new Podcast()
+    const filesystem = new Filesystem()
 
-		// Get data from YouTube
-		winston.info ('Getting data from channel');
-		const items = await youtube.getVideoList ();
+    // Get data from YouTube
+    winston.info('Getting data from channel')
+    const items = await youtube.getVideoList()
+    winston.debug(`items: ${items}`)
 
-		// List files in bucket
-		winston.info ('Listing files in bucket');
-		const bucketFiles = await aws.list ();
+    // List files in bucket
+    winston.info('Listing files in bucket')
+    const files = await filesystem.list()
 
-		// Upload new files
-		const notDownloaded = [];
-		const itemsToUpload = items.filter (x => !bucketFiles.includes (x.filename));
-		winston.info (`Found ${itemsToUpload.length} items to upload`);
-		for (const item of itemsToUpload)
-		{
-			try
-			{
-				winston.info ('Downloading', item.title, item.filename);
-				const video = await youtube.downloadVideo (item.id);
-				winston.info ('Uploading');
-				await aws.upload (video.stream, item.filename, video.size);
-			}
-			catch (e2)
-			{
-				winston.info ('Skipping', item.title);
-				winston.error (e2);
-				notDownloaded.push (item);
-			}
-		}
+    // Upload new files
+    const notDownloaded = []
+    const itemsToDownload = items.filter(x => !files.includes(x.filename))
+    winston.info(`Found ${itemsToDownload.length} items to download`)
+    for (const item of itemsToDownload) {
+      try {
+        winston.info(`Downloading ${item.title} to ${item.filename}`)
+        const video = await youtube.downloadVideo(item)
+        await filesystem.upload(video.stream, item.filename)
+      } catch (e2) {
+        winston.info('Skipping', item.title)
+        winston.error(e2)
+        notDownloaded.push(item)
+      }
+    }
 
-		// Remove items
-		if (notDownloaded.length)
-		{
-			winston.info ('Removing items that were not downloaded');
-			for (const item of notDownloaded)
-			{
-				winston.info ('Removing', item.title);
-				items.splice (items.indexOf (item), 1);
-			}
-		}
+    // Remove items
+    if (notDownloaded.length) {
+      winston.info('Removing items that were not downloaded')
+      for (const item of notDownloaded) {
+        winston.info('Removing', item.title)
+        items.splice(items.indexOf(item), 1)
+      }
+    }
 
-		// Add items
-		winston.info ('Adding items');
-		await Promise.all (items.map (async (item) =>
-		{
-			// Get info
-			const length = await aws.getLength (item.filename);
+    // Add items
+    winston.info('Adding items')
+    await Promise.all(items.map(async (item) => {
+      // Get info
+      const length = await filesystem.getLength(item.filename)
 
-			// Add to feed
-			winston.info ('Adding to feed', item.title);
-			podcast.addItem (
-				item.title,
-				item.description,
-				aws.getUrl (item.filename),
-				item.date,
-				item.duration,
-				item.filename,
-				length);
-		}));
+      // Add to feed
+      winston.info('Adding to feed', item.title)
+      podcast.addItem(
+        item.title,
+        item.description,
+        filesystem.getUrl(item.filename),
+        item.date,
+        item.duration,
+        item.filename,
+        length)
+    }))
 
-		// Upload
-		winston.info ('Uploading feed');
-		const xml = podcast.generate ();
-		await aws.upload (xml, config.podcast.xml);
+    // Upload
+    winston.info('Uploading feed')
+    const xml = podcast.generate()
+    await filesystem.upload(xml, config.podcast.xml)
 
-		// Cleanup
-		if (config.aws.deleteOld)
-		{
-			const uploadedFiles = items.map (x => x.filename);
-			const filesToDelete = bucketFiles
-				.filter (x => x.endsWith ('.aac'))
-				.filter (x => !uploadedFiles.includes (x));
-			if (filesToDelete.length)
-			{
-				winston.info ('Deleting files', filesToDelete);
-				await aws.deleteFiles (filesToDelete);
-			}
-		}
-	}
-	catch (e)
-	{
-		winston.error (e.message, e.stack);
-	}
-})();
+    // Cleanup
+    if (config.filesystem.deleteOld) {
+      winston.info('Cleanup')
+      const uploadedFiles = items.map(x => x.filename)
+      const filesToDelete = files
+        .filter(x => x.endsWith('.m4a'))
+        .filter(x => !uploadedFiles.includes(x))
+      if (filesToDelete.length) {
+        await filesystem.deleteFiles(filesToDelete)
+      }
+    }
+
+    process.exit(0)
+  } catch (e) {
+    winston.error(e.message, e.stack)
+  }
+})()
