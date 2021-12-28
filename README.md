@@ -16,4 +16,4 @@ Edit the config file config.json
 
 ### Launch
 
-Run: `node dist/main`
+Run: `npm start`
