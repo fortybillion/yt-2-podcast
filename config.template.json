@@ -69,6 +69,6 @@
 		"order": "date",
 		"minDuration": 600,
 		"promiseLimit": 3,
-		"preBuffer": true
+		"fixSeekTable": true
 	}
 }

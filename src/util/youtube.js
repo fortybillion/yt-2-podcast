@@ -6,6 +6,7 @@ import winston from 'winston'
 import ytdl from 'ytdl-core'
 import ytpl from 'ytpl'
 import cliProgress from 'cli-progress'
+import ffmpeg from 'ffmpeg-cli'
 
 // Local
 import sleep from './sleep.js'
@@ -49,14 +50,22 @@ export default class YouTube {
     while (size === null && error === null) { await sleep(100) }
     if (error) { throw error }
 
-    if (!this.config.preBuffer) { return { stream, size } }
-
-    const filePath = `/tmp/${id}.m4a`
+    let filePath = `/tmp/${id}.m4a`
     winston.debug('Waiting for download to end...')
     await pipe(
       stream,
       await fs.createWriteStream(filePath))
     winston.debug('Downloaded')
+
+    // m4a from youtube is missing the seek table, which confuses some
+    // players. use ffmpeg to fix.
+    if (this.config.fixSeekTable) {
+      winston.info('Fixing Seek Table')
+      const outFilePath = `/tmp/${id}-fixed.m4a`
+      ffmpeg.runSync(`-hide_banner -loglevel panic -y -i ${filePath} -acodec copy -movflags faststart ${outFilePath}`)
+      filePath = outFilePath
+    }
+
     const stream2 = await fs.createReadStream(filePath)
     return { stream: stream2, size: size }
   }

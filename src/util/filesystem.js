@@ -31,7 +31,7 @@ export default class Filesystem {
     return fs.promises.readdir(this.config.path)
   }
 
-  async upload (data, filename) {
+  async writeFile (data, filename) {
     return fs.promises.writeFile(`${this.config.path}/${filename}`, data)
   }
 }

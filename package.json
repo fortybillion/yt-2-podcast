@@ -18,6 +18,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
+    "ffmpeg-cli": "^2.7.5",
     "fs-promise": "^2.0.3",
     "jsonfile": "^2.4.0",
     "lodash": "^4.17.11",

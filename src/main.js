@@ -35,7 +35,7 @@ import config from './util/config.js'
       try {
         winston.info(`Downloading ${item.title} to ${item.filename}`)
         const video = await youtube.downloadVideo(item)
-        await filesystem.upload(video.stream, item.filename)
+        await filesystem.writeFile(video.stream, item.filename)
       } catch (e2) {
         winston.info('Skipping', item.title)
         winston.error(e2)
@@ -73,7 +73,7 @@ import config from './util/config.js'
     // Upload
     winston.info('Uploading feed')
     const xml = podcast.generate()
-    await filesystem.upload(xml, config.podcast.xml)
+    await filesystem.writeFile(xml, config.podcast.xml)
 
     // Cleanup
     if (config.filesystem.deleteOld) {
