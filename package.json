@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "node --inspect-brk src/main.js",
+    "debug": "node src/main.js",
     "start": "node src/main.js"
   },
   "author": "",

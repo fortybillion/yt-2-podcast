@@ -28,6 +28,7 @@ export default class YouTube {
 
     let progressBar
     let size = null
+    let publishDate = null
     let error = null
 
     if (config.log.console.enabled) {
@@ -37,7 +38,11 @@ export default class YouTube {
       })
     }
 
-    stream.on('info', info => { size = info.size })
+    stream.on('info', info => {
+      size = info.size
+      publishDate = info.publishDate
+    })
+
     stream.on('progress', (chunkSize, totalDownloaded, total) => {
       if (config.log.console.enabled) {
         progressBar.setTotal(total)
@@ -67,12 +72,12 @@ export default class YouTube {
     }
 
     const stream2 = await fs.createReadStream(filePath)
-    return { stream: stream2, size: size }
+    return { stream: stream2, size, publishDate }
   }
 
   async getVideoList () {
     winston.debug(`getVideoList for ${this.config.channel}`)
-    const result = await ytpl(this.config.channel, {
+    const channel = await ytpl(this.config.channel, {
       limit: this.config.maxEpisodes
     })
 
@@ -80,7 +85,7 @@ export default class YouTube {
       ? new RegExp(this.config.regex)
       : null
 
-    const items = result
+    const items = channel
       .items
       .filter(item => regex == null || regex.test(item.title))
       .filter(item => item.durationSec >= this.config.minDuration)
@@ -92,7 +97,7 @@ export default class YouTube {
         url: item.shortUrl
       }))
 
-    return items
+    return { channel, items }
   }
 
   formatBytes (bytes, decimals = 2) {

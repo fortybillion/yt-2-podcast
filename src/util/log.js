@@ -18,7 +18,7 @@ if (config.log.console.enabled) {
       winston.format.colorize(),
       winston.format.simple()
     ),
-    level: config.log.level
+    level: config.log.console.level
   }), config.log.console)
 }
 

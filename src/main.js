@@ -1,5 +1,6 @@
 // Dependencies
 import winston from 'winston'
+import _ from 'lodash'
 
 // Runtime
 import './util/log.js'
@@ -15,13 +16,13 @@ import config from './util/config.js'
     // Init
     winston.info('Initializing')
     const youtube = new YouTube()
-    const podcast = new Podcast()
     const filesystem = new Filesystem()
 
     // Get data from YouTube
     winston.info('Getting data from channel')
-    const items = await youtube.getVideoList()
-    winston.debug(`items: ${items}`)
+    const { channel, items } = await youtube.getVideoList()
+    winston.debug(`channel: ${JSON.stringify(channel, null, 2)}`)
+    winston.debug(`items: ${JSON.stringify(items, null, 2)}`)
 
     // List files in bucket
     winston.info('Listing files in bucket')
@@ -54,12 +55,14 @@ import config from './util/config.js'
 
     // Add items
     winston.info('Adding items')
-    await Promise.all(items.map(async (item) => {
+    const podcast = new Podcast(_.get(channel, 'bestThumbnail.url'))
+
+    for (const item of items) {
       // Get info
       const length = await filesystem.getLength(item.filename)
 
       // Add to feed
-      winston.info('Adding to feed', item.title)
+      winston.info(`Adding to feed ${item.title}`)
       podcast.addItem(
         item.title,
         item.description,
@@ -68,7 +71,7 @@ import config from './util/config.js'
         item.duration,
         item.filename,
         length)
-    }))
+    }
 
     // Upload
     winston.info('Uploading feed')
