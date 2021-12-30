@@ -7,7 +7,7 @@
 	"log": {
 		"console": {
 			"enabled": true,
-			"level": "debug",
+			"level": "info",
 			"timestamp": true
 		},
 		"local": {

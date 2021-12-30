@@ -34,4 +34,13 @@ export default class Filesystem {
   async writeFile (data, filename) {
     return fs.promises.writeFile(`${this.config.path}/${filename}`, data)
   }
+
+  async updateTimestamp (file, date) {
+    const ts = new Date(date)
+    return fs.promises.utimes(`${this.config.path}/${file}`, ts, ts)
+  }
+
+  getTimestamp (file) {
+    return fs.statSync(`${this.config.path}/${file}`).mtime
+  }
 }

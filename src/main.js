@@ -28,7 +28,7 @@ import config from './util/config.js'
     winston.info('Listing files in bucket')
     const files = await filesystem.list()
 
-    // Upload new files
+    // Download new files
     const notDownloaded = []
     const itemsToDownload = items.filter(x => !files.includes(x.filename))
     winston.info(`Found ${itemsToDownload.length} items to download`)
@@ -37,6 +37,7 @@ import config from './util/config.js'
         winston.info(`Downloading ${item.title} to ${item.filename}`)
         const video = await youtube.downloadVideo(item)
         await filesystem.writeFile(video.stream, item.filename)
+        await filesystem.updateTimestamp(item.filename, video.publishDate)
       } catch (e2) {
         winston.info('Skipping', item.title)
         winston.error(e2)
@@ -70,7 +71,8 @@ import config from './util/config.js'
         item.date,
         item.duration,
         item.filename,
-        length)
+        length,
+        filesystem.getTimestamp(item.filename))
     }
 
     // Upload

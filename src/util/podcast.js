@@ -14,14 +14,14 @@ export default class Podcast {
     this.feed = new PodcastModule(this.config.feed)
   }
 
-  addItem (title, description, url, date, duration, filename, size) {
+  addItem (title, description, url, date, duration, filename, size, mtime) {
     const item = _.extend(
       this.config.item,
       {
         title: title,
         description: description,
         url: url,
-        date: date,
+        date: mtime,
         itunesSummary: description,
         itunesDuration: duration,
         itunesSubtitle: title,

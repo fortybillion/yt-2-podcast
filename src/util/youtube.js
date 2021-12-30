@@ -39,8 +39,9 @@ export default class YouTube {
     }
 
     stream.on('info', info => {
+      winston.debug(`info: ${JSON.stringify(info, null, 2)}`)
       size = info.size
-      publishDate = info.publishDate
+      publishDate = info.videoDetails.publishDate
     })
 
     stream.on('progress', (chunkSize, totalDownloaded, total) => {
