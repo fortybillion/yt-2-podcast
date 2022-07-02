@@ -56,7 +56,7 @@ import config from './util/config.js'
 
     // Add items
     winston.info('Adding items')
-    const podcast = new Podcast(_.get(channel, 'bestThumbnail.url'))
+    const podcast = new Podcast(_.get(channel, 'author.bestAvatar.url'))
 
     for (const item of items) {
       // Get info
@@ -72,7 +72,9 @@ import config from './util/config.js'
         item.duration,
         item.filename,
         length,
-        filesystem.getTimestamp(item.filename))
+        filesystem.getTimestamp(item.filename),
+        item.imageUrl
+      )
     }
 
     // Upload

@@ -7,14 +7,14 @@ import PodcastModule from 'podcast'
 import config from './config.js'
 
 export default class Podcast {
-  constructor (imageUrl) {
+  constructor(imageUrl) {
     this.config = config.podcast
     this.config.feed.pubDate = new Date()
     this.config.feed.image_url = imageUrl
     this.feed = new PodcastModule(this.config.feed)
   }
 
-  addItem (title, description, url, date, duration, filename, size, mtime) {
+  addItem(title, description, url, date, duration, filename, size, mtime, imageUrl) {
     const item = _.extend(
       this.config.item,
       {
@@ -29,12 +29,13 @@ export default class Podcast {
           url: url,
           size: size,
           mime: mime.lookup(filename)
-        }
+        },
+        image_url: imageUrl
       })
     this.feed.item(item)
   }
 
-  generate () {
+  generate() {
     return this.feed.xml()
   }
 }

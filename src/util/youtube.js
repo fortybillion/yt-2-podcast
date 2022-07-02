@@ -13,12 +13,12 @@ import sleep from './sleep.js'
 import config from './config.js'
 
 export default class YouTube {
-  constructor () {
+  constructor() {
     this.config = config.youtube
     this.limit = promiseLimit(this.config.promiseLimit)
   }
 
-  async downloadVideo ({ id, url }) {
+  async downloadVideo({ id, url }) {
     const info = await ytdl.getInfo(url)
     const format = ytdl.chooseFormat(info.formats, {
       filter: format => format.mimeType.indexOf('audio/mp4') >= 0,
@@ -76,7 +76,7 @@ export default class YouTube {
     return { stream: stream2, size, publishDate }
   }
 
-  async getVideoList () {
+  async getVideoList() {
     winston.debug(`getVideoList for ${this.config.channel}`)
     const channel = await ytpl(this.config.channel, {
       limit: this.config.maxEpisodes
@@ -95,13 +95,14 @@ export default class YouTube {
         id: item.id,
         description: item.description,
         filename: `${item.id}.m4a`,
-        url: item.shortUrl
+        url: item.shortUrl,
+        imageUrl: item.bestThumbnail.url
       }))
 
     return { channel, items }
   }
 
-  formatBytes (bytes, decimals = 2) {
+  formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes'
 
     const k = 1024
