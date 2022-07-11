@@ -78,8 +78,9 @@ export default class YouTube {
 
   async getVideoList() {
     winston.debug(`getVideoList for ${this.config.channel}`)
-    const channel = await ytpl(this.config.channel, {
-      limit: this.config.maxEpisodes
+    const channelId = await ytpl.getPlaylistID(this.config.channel)
+    const channel = await ytpl(channelId, {
+      limit: this.config.queryLimit || 5
     })
 
     const regex = this.config.regex
@@ -90,6 +91,7 @@ export default class YouTube {
       .items
       .filter(item => regex == null || regex.test(item.title))
       .filter(item => item.durationSec >= this.config.minDuration)
+      .slice(0, this.config.maxEpisodes)
       .map(item => ({
         title: item.title,
         id: item.id,
