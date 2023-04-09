@@ -1,7 +1,6 @@
 // Dependencies
 import path from 'path'
 import winston from 'winston'
-import winstoncw from 'winston-cloudwatch'
 
 // Local
 import config from './config.js'
@@ -26,7 +25,6 @@ if (config.log.console.enabled) {
 if (config.log.local.enabled) { winston.add(new winston.transports.File(), config.log.local) }
 
 // Cloud watch
-if (config.log.cloudwatch.enabled) { winston.add(winstoncw, config.log.cloudwatch) }
 
 // // Dependencies
 // // import path from 'path'

@@ -38,9 +38,8 @@ import config from './util/config.js'
         const video = await youtube.downloadVideo(item)
         await filesystem.writeFile(video.stream, item.filename)
         await filesystem.updateTimestamp(item.filename, video.publishDate)
-      } catch (e2) {
-        winston.info('Skipping', item.title)
-        winston.error(e2)
+      } catch (e) {
+        winston.error(`Skipping ${item.title}`)
         notDownloaded.push(item)
       }
     }
