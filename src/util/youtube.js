@@ -3,14 +3,29 @@ import fs from 'fs-promise'
 import pipe from 'promisepipe'
 import promiseLimit from 'promise-limit'
 import winston from 'winston'
-import ytdl from 'ytdl-core'
-import ytpl from 'ytpl'
+import ytdl from '@distube/ytdl-core'
+import ytpl from '@distube/ytpl'
 import cliProgress from 'cli-progress'
 import ffmpeg from 'ffmpeg-cli'
 
 // Local
 import sleep from './sleep.js'
 import config from './config.js'
+
+function convertDurationToSeconds(duration) {
+  // Split the duration string by colon
+  const parts = duration.split(':');
+
+  // Convert each part to an integer
+  const hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
+  const seconds = parseInt(parts[2], 10);
+
+  // Calculate the total number of seconds
+  const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+  return totalSeconds;
+}
 
 export default class YouTube {
   constructor() {
@@ -21,7 +36,7 @@ export default class YouTube {
   async downloadVideo({ id, url }) {
     const info = await ytdl.getInfo(url)
     const format = ytdl.chooseFormat(info.formats, {
-      filter: format => format.mimeType.indexOf('audio/mp4') >= 0,
+      filter: format => format.mimeType && format.mimeType.indexOf('audio/mp4') >= 0,
       quality: 'highestaudio'
     })
     const stream = ytdl.downloadFromInfo(info, { format })
@@ -90,7 +105,7 @@ export default class YouTube {
     const items = channel
       .items
       .filter(item => regex == null || regex.test(item.title))
-      .filter(item => item.durationSec >= this.config.minDuration)
+      .filter(item => convertDurationToSeconds(item.duration) >= this.config.minDuration)
       .slice(0, this.config.maxEpisodes)
       .map(item => ({
         title: item.title,
@@ -98,7 +113,7 @@ export default class YouTube {
         description: item.description,
         filename: `${item.id}.m4a`,
         url: item.shortUrl,
-        imageUrl: item.bestThumbnail.url
+        imageUrl: item.thumbnail
       }))
 
     return { channel, items }

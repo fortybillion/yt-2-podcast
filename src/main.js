@@ -40,6 +40,7 @@ import config from './util/config.js'
         await filesystem.updateTimestamp(item.filename, video.publishDate)
       } catch (e) {
         winston.error(`Skipping ${item.title}`)
+        winston.debug(e)
         notDownloaded.push(item)
       }
     }
