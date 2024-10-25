@@ -27,6 +27,7 @@
 		"feed": {
 			"title": "PODCAST TITLE",
 			"description": "PODCAST DESCRIPTION",
+			"image_url": "IMAGE URL",
 			"site_url": "SITE URL",
 			"feed_url": "PUBLIC FEED XML",
 			"author": "PODCAST AUTHOR",

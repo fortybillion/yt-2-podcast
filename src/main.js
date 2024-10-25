@@ -56,7 +56,7 @@ import config from './util/config.js'
 
     // Add items
     winston.info('Adding items')
-    const podcast = new Podcast(_.get(channel, 'author.bestAvatar.url'))
+    const podcast = new Podcast()
 
     for (const item of items) {
       // Get info

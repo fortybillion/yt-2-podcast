@@ -19,10 +19,9 @@ function convertDurationToSeconds(duration) {
   // Convert each part to an integer
   const hours = parseInt(parts[0], 10);
   const minutes = parseInt(parts[1], 10);
-  const seconds = parseInt(parts[2], 10);
 
   // Calculate the total number of seconds
-  const totalSeconds = (hours * 3600) + (minutes * 60) + seconds;
+  const totalSeconds = (hours * 3600) + (minutes * 60);
 
   return totalSeconds;
 }

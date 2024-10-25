@@ -7,10 +7,9 @@ import PodcastModule from 'podcast'
 import config from './config.js'
 
 export default class Podcast {
-  constructor(imageUrl) {
+  constructor() {
     this.config = config.podcast
     this.config.feed.pubDate = new Date()
-    this.config.feed.image_url = imageUrl
     this.feed = new PodcastModule(this.config.feed)
   }
 
