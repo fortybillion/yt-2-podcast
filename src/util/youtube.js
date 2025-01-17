@@ -33,7 +33,7 @@ export default class YouTube {
   }
 
   async downloadVideo({ id, url }) {
-    const info = await ytdl.getInfo(url)
+    const info = await ytdl.getInfo(url, { playerClients: ["IOS", "WEB_CREATOR"] })
     const format = ytdl.chooseFormat(info.formats, {
       filter: format => format.mimeType && format.mimeType.indexOf('audio/mp4') >= 0,
       quality: 'highestaudio'

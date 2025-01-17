@@ -4,3 +4,4 @@
 config.json
 config-*.json
 .vscode/launch.json
+*-base.js
